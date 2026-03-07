@@ -20,7 +20,7 @@ EMOTIONS = {
     "Anger":     {"emoji": "😠", "color": "#EF4444", "desc": "High arousal"},
     "Neutral":   {"emoji": "😐", "color": "#9CA3AF", "desc": "No strong affect"},
 }
-CLASS_NAMES = ["Surprise", "Fear", "Disgust", "Happiness", "Sadness", "Anger", "Neutral"]
+CLASS_NAMES = []  # loaded from model
 
 THEMES = {
     "dark": {
@@ -100,10 +100,15 @@ def load_model():
     pt_path   = os.path.join(base, "best.pt")
     onnx_path = os.path.join(base, "best.onnx")
     if os.path.exists(pt_path):
-        return YOLO(pt_path), ".pt"
+        m = YOLO(pt_path)
     elif os.path.exists(onnx_path):
-        return YOLO(onnx_path), ".onnx"
-    raise FileNotFoundError("No model file found (best.pt or best.onnx)")
+        m = YOLO(onnx_path)
+    else:
+        raise FileNotFoundError("No model file found (best.pt or best.onnx)")
+    # Read class names directly from the model — guaranteed correct order
+    class_names = [m.names[i] for i in range(len(m.names))]
+    fmt = ".pt" if os.path.exists(pt_path) else ".onnx"
+    return m, fmt, class_names
 
 # ── SIDEBAR ───────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -138,7 +143,7 @@ with st.sidebar:
 
     model_ok = False
     try:
-        model, fmt = load_model()
+        model, fmt, CLASS_NAMES = load_model()
         model_ok = True
         st.markdown(f"""
         <div style="display:inline-flex;align-items:center;gap:8px;
