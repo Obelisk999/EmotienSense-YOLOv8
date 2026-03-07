@@ -303,11 +303,11 @@ def load_model():
     from ultralytics import YOLO
     import os
     # prefer .pt (native, no extra runtime needed)
-    pt_path = "/mnt/user-data/uploads/best.pt"
+    pt_path = "best.pt"
     if os.path.exists(pt_path):
         model = YOLO(pt_path)
         return model, "YOLOv8n-cls  ·  .pt"
-    onnx_path = "/mnt/user-data/uploads/best.onnx"
+    onnx_path = "best.onnx"
     model = YOLO(onnx_path)
     return model, "YOLOv8n-cls  ·  .onnx"
 
